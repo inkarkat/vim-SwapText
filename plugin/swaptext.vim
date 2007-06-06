@@ -45,8 +45,9 @@ function! s:SwapTextVisual()
 	let l:correction = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:correction. ' characters.'
 	call cursor( line('.'), l:deletedCol + l:correction )
+	normal! P
     else
-	normal! gvP``
+	normal! `.``gvP``P
     endif
 endfunction
 
@@ -66,7 +67,7 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <silent> <Leader>x `.``:<C-U>call <SID>SwapTextVisual()<CR>P
+vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextVisual()<CR>
 
 " Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
