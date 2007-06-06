@@ -81,7 +81,20 @@ function! s:SwapTextOperator( type )
     let l:save_sel = &selection
     set selection=inclusive
     if a:type == 'char'
-	normal! `.mz`[v`]P`zP
+	if line('.') == line("'.") && col('.') < col("'.")
+	    " When you change a line by inserting/deleting characters, any marks to
+	    " the right of the change don't get adjusted to correct for the change,
+	    " but stay pointing at the exact same column as before the change (which
+	    " is not the right place anymore). 
+	    let l:c = col('.')
+	    normal! `.mz`[v`]P
+	    let l:c = col('.') - c
+	    normal! `z
+	    call cursor( line('.'), col('.') + l:c )
+	    normal! P
+	else
+	    normal! `.mz`[v`]P`zP
+	endif
     elseif a:type == 'line'
 	normal! `.mz`[V`]P`zP
     else
