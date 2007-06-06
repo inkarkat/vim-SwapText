@@ -10,6 +10,12 @@
 " DEPENDENCIES:
 " CONFIGURATION:
 " LIMITATIONS:
+"   - Unless "set virtualedit=all", swapping the last characters in a line will
+"     insert one character short of where the insert should be. This only
+"     happens when you swap FROM the last characters in a line to somewhere
+"     else. If you swap TO (in the natural left-to-right editing order) the last
+"     characters in a line, everythings works fine. 
+"
 " ASSUMPTIONS:
 " KNOWN PROBLEMS:
 " TODO:
@@ -53,17 +59,8 @@ function! s:SwapTextWithOffsetCorrection( overrideCmd )
     let l:replacedTextLen = len(@@)
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
-    if has('virtualedit')
-	" Swaps from the end of the line do a one-too-short insert at the end of
-	" the line unless the 'virtualedit' setting is set to "all". 
-	let l:save_ve = &virtualedit
-	set ve=all
-    endif
     call cursor( line('.'), l:deletedCol + l:offset )
     normal! P
-    if has('virtualedit')
-	let &virtualedit = l:save_ve
-    endif
 endfunction
 
 function! s:SwapTextCharacterwise( overrideCmd, multipleLineCmd )
