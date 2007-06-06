@@ -68,14 +68,27 @@ vnoremap <silent> <Leader>x `.``:<C-U>call <SID>SwapTextVisual()<CR>P
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
 
 "------------------------------------------------------------------------------
+if v:version < 700
+    " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
+    " introduced in VIM 7.0. Cp. ':help :map-operator'. 
+    finish
+endif
+
 function! s:SwapTextOperator( type )
+    " The 'selection' option is temporarily set to "inclusive" to be able to
+    " yank exactly the right text by using Visual mode from the '[ to the ']
+    " mark.
     let l:save_sel = &selection
     set selection=inclusive
-    normal! `.mz`[v`]P`zP
+    if a:type == 'char'
+	normal! `.mz`[v`]P`zP
+    elseif a:type == 'line'
+	normal! `.mz`[V`]P`zP
+    else
+	throw 'Blockwise visual motion not supported!'
+    endif
     let &selection = l:save_sel
 endfunction
 
 nmap <silent> \x :set opfunc=<SID>SwapTextOperator<CR>g@
-
-
 
