@@ -18,7 +18,8 @@
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-" Source:	vimtip #470: Map to quickly swap/exchange arbitrary text
+" Source: Based on vimtip #470: Map to quickly swap/exchange arbitrary text by
+"	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
 "	001	06-Jun-2007	file creation
