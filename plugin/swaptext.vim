@@ -53,8 +53,17 @@ function! s:SwapTextWithOffsetCorrection( overrideCmd )
     let l:replacedTextLen = len(@@)
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
+    if has('virtualedit')
+	" Swaps from the end of the line do a one-too-short insert at the end of
+	" the line unless the 'virtualedit' setting is set to "all". 
+	let l:save_ve = &virtualedit
+	set ve=all
+    endif
     call cursor( line('.'), l:deletedCol + l:offset )
     normal! P
+    if has('virtualedit')
+	let &virtualedit = l:save_ve
+    endif
 endfunction
 
 function! s:SwapTextCharacterwise( overrideCmd, multipleLineCmd )
