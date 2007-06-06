@@ -30,7 +30,7 @@ if exists("g:loaded_swaptext")
 endif
 let g:loaded_swaptext = 1
 
-function! s:SwapText()
+function! s:SwapTextVisual()
     if line('.') == line("'.") && col('.') < col("'.")
 	" When you change a line by inserting/deleting characters, any marks to
 	" the right of the change don't get adjusted to correct for the change,
@@ -62,8 +62,20 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <silent> <Leader>x `.``:<C-U>call <SID>SwapText()<CR>P
+vnoremap <silent> <Leader>x `.``:<C-U>call <SID>SwapTextVisual()<CR>P
 
 " Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
+
+"------------------------------------------------------------------------------
+function! s:SwapTextOperator( type )
+    let l:save_sel = &selection
+    set selection=inclusive
+    normal! `.mz`[v`]P`zP
+    let &selection = l:save_sel
+endfunction
+
+nmap <silent> \x :set opfunc=<SID>SwapTextOperator<CR>g@
+
+
 
