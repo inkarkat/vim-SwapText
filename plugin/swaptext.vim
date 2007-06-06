@@ -67,7 +67,7 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextVisual()<CR>
+vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextOperator('visual')<CR>
 
 " Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
@@ -79,34 +79,48 @@ if v:version < 700
     finish
 endif
 
+function! s:SwapTextWithOffsetCorrection( type )
+    " When you change a line by inserting/deleting characters, any marks to
+    " the right of the change don't get adjusted to correct for the change,
+    " but stay pointing at the exact same column as before the change (which
+    " is not the right place anymore). 
+    let l:deletedCol = col("'.")
+    let l:deletedTextLen = len(@@)
+    if a:type == 'visual'
+	normal! gvP
+    else
+	normal! `[v`]P
+    endif
+    let l:replacedTextLen = len(@@)
+    let l:correction = l:deletedTextLen - l:replacedTextLen
+    call cursor( line('.'), l:deletedCol + l:correction )
+    normal! P
+endfunction
+
 function! s:SwapTextOperator( type )
-    " The 'selection' option is temporarily set to "inclusive" to be able to
-    " yank exactly the right text by using Visual mode from the '[ to the ']
-    " mark.
-    let l:save_sel = &selection
-    set selection=inclusive
-    if a:type == 'char'
+    if a:type != 'visual'
+	" The 'selection' option is temporarily set to "inclusive" to be able to
+	" yank exactly the right text by using Visual mode from the '[ to the ']
+	" mark.
+	let l:save_sel = &selection
+	set selection=inclusive
+    endif
+    if a:type == 'visual' || a:type == 'char'
 	if line('.') == line("'.") && col('.') < col("'.")
-	    " When you change a line by inserting/deleting characters, any marks to
-	    " the right of the change don't get adjusted to correct for the change,
-	    " but stay pointing at the exact same column as before the change (which
-	    " is not the right place anymore). 
-	    let l:deletedCol = col("'.")
-	    let l:deletedTextLen = len(@@)
-	    normal! `[v`]P
-	    let l:replacedTextLen = len(@@)
-	    let l:correction = l:deletedTextLen - l:replacedTextLen
-	    call cursor( line('.'), l:deletedCol + l:correction )
-	    normal! P
+	    call s:SwapTextWithOffsetCorrection( a:type )
+	elseif a:type == 'visual'
+	    normal! `.``gvP``P
 	else
 	    normal! `.mz`[v`]P`zP
 	endif
     elseif a:type == 'line'
 	normal! `.mz`[V`]P`zP
     else
-	throw 'Blockwise visual motion not supported!'
+	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
-    let &selection = l:save_sel
+    if a:type != 'visual'
+	let &selection = l:save_sel
+    endif
 endfunction
 
 nmap <silent> \x :set opfunc=<SID>SwapTextOperator<CR>g@
