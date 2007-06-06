@@ -38,12 +38,12 @@ function! s:SwapTextVisual()
 	" is not the right place anymore). 
 	let l:deletedCol = col("'.")
 	let l:deletedTextLen = len(@@)
-echomsg '**** deleted ' . @@
+"****D echomsg '**** deleted ' . @@
 	normal! gvP
 	let l:replacedTextLen = len(@@)
-echomsg '**** replaced ' . @@
+"****D echomsg '**** replaced ' . @@
 	let l:correction = l:deletedTextLen - l:replacedTextLen
-echomsg '**** corrected for ' . l:correction. ' characters.'
+"****D echomsg '**** corrected for ' . l:correction. ' characters.'
 	call cursor( line('.'), l:deletedCol + l:correction )
     else
 	normal! gvP``
@@ -90,12 +90,12 @@ function! s:SwapTextOperator( type )
 	    " the right of the change don't get adjusted to correct for the change,
 	    " but stay pointing at the exact same column as before the change (which
 	    " is not the right place anymore). 
+	    let l:deletedCol = col("'.")
 	    let l:deletedTextLen = len(@@)
-	    normal! `.mz`[v`]P
+	    normal! `[v`]P
 	    let l:replacedTextLen = len(@@)
 	    let l:correction = l:deletedTextLen - l:replacedTextLen
-	    normal! `z
-	    call cursor( line('.'), col('.') + l:correction )
+	    call cursor( line('.'), l:deletedCol + l:correction )
 	    normal! P
 	else
 	    normal! `.mz`[v`]P`zP
