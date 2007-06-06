@@ -22,6 +22,17 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	002	07-Jun-2007	Changed offset algorithm from calculating
+"				differences to set marks to differences in
+"				pasted text. 
+"				BF: Saving position of deleted text and adding
+"				offset to that instead of jumping to mark and
+"				adding offset then (which doesn't work when the
+"				swap shortens the line and the mark now points
+"				to after the end of the line. 
+"				Added VIM7 custom operator. 
+"				Refactored code so that both the visual mode
+"				mapping and the operator use the same functions. 
 "	001	06-Jun-2007	file creation
 
 " Avoid installing twice or when in compatible mode
@@ -30,25 +41,48 @@ if exists("g:loaded_swaptext")
 endif
 let g:loaded_swaptext = 1
 
-function! s:SwapTextVisual()
+"- functions ------------------------------------------------------------------
+function! s:SwapTextWithOffsetCorrection( overrideCmd )
+    " When you change a line by inserting/deleting characters, any marks to
+    " the right of the change don't get adjusted to correct for the change,
+    " but stay pointing at the exact same column as before the change (which
+    " is not the right place anymore). 
+    let l:deletedCol = col("'.")
+    let l:deletedTextLen = len(@@)
+    execute 'normal! ' . a:overrideCmd
+    let l:replacedTextLen = len(@@)
+    let l:offset = l:deletedTextLen - l:replacedTextLen
+"****D echomsg '**** corrected for ' . l:offset. ' characters.'
+    call cursor( line('.'), l:deletedCol + l:offset )
+    normal! P
+endfunction
+
+function! s:SwapTextCharacterwise( overrideCmd, multipleLineCmd )
     if line('.') == line("'.") && col('.') < col("'.")
-	" When you change a line by inserting/deleting characters, any marks to
-	" the right of the change don't get adjusted to correct for the change,
-	" but stay pointing at the exact same column as before the change (which
-	" is not the right place anymore). 
-	let l:deletedCol = col("'.")
-	let l:deletedTextLen = len(@@)
-"****D echomsg '**** deleted ' . @@
-	normal! gvP
-	let l:replacedTextLen = len(@@)
-"****D echomsg '**** replaced ' . @@
-	let l:correction = l:deletedTextLen - l:replacedTextLen
-"****D echomsg '**** corrected for ' . l:correction. ' characters.'
-	call cursor( line('.'), l:deletedCol + l:correction )
-	normal! P
+	call s:SwapTextWithOffsetCorrection( a:overrideCmd )
     else
-	normal! `.``gvP``P
+	execute 'normal! ' . a:multipleLineCmd
     endif
+endfunction
+
+function! s:SwapTextVisual()
+    call s:SwapTextCharacterwise( 'gvP', '`.``gvP``P' )
+endfunction
+
+function! s:SwapTextOperator( type )
+    " The 'selection' option is temporarily set to "inclusive" to be able to
+    " yank exactly the right text by using Visual mode from the '[ to the ']
+    " mark.
+    let l:save_sel = &selection
+    set selection=inclusive
+    if a:type == 'char'
+	call s:SwapTextCharacterwise( '`[v`]P', '`.mz`[v`]P`zP' )
+    elseif a:type == 'line'
+	normal! `.mz`[V`]P`zP
+    else
+	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
+    endif
+    let &selection = l:save_sel
 endfunction
 
 " How it works:
@@ -67,61 +101,15 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextOperator('visual')<CR>
+vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextVisual()<CR>
 
 " Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
 
 "------------------------------------------------------------------------------
-if v:version < 700
+if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
     " introduced in VIM 7.0. Cp. ':help :map-operator'. 
-    finish
+    nmap <silent> <Leader>x :set opfunc=<SID>SwapTextOperator<CR>g@
 endif
-
-function! s:SwapTextWithOffsetCorrection( type )
-    " When you change a line by inserting/deleting characters, any marks to
-    " the right of the change don't get adjusted to correct for the change,
-    " but stay pointing at the exact same column as before the change (which
-    " is not the right place anymore). 
-    let l:deletedCol = col("'.")
-    let l:deletedTextLen = len(@@)
-    if a:type == 'visual'
-	normal! gvP
-    else
-	normal! `[v`]P
-    endif
-    let l:replacedTextLen = len(@@)
-    let l:correction = l:deletedTextLen - l:replacedTextLen
-    call cursor( line('.'), l:deletedCol + l:correction )
-    normal! P
-endfunction
-
-function! s:SwapTextOperator( type )
-    if a:type != 'visual'
-	" The 'selection' option is temporarily set to "inclusive" to be able to
-	" yank exactly the right text by using Visual mode from the '[ to the ']
-	" mark.
-	let l:save_sel = &selection
-	set selection=inclusive
-    endif
-    if a:type == 'visual' || a:type == 'char'
-	if line('.') == line("'.") && col('.') < col("'.")
-	    call s:SwapTextWithOffsetCorrection( a:type )
-	elseif a:type == 'visual'
-	    normal! `.``gvP``P
-	else
-	    normal! `.mz`[v`]P`zP
-	endif
-    elseif a:type == 'line'
-	normal! `.mz`[V`]P`zP
-    else
-	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
-    endif
-    if a:type != 'visual'
-	let &selection = l:save_sel
-    endif
-endfunction
-
-nmap <silent> \x :set opfunc=<SID>SwapTextOperator<CR>g@
 
