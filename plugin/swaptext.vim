@@ -37,12 +37,12 @@ function! s:SwapTextVisual()
 	" but stay pointing at the exact same column as before the change (which
 	" is not the right place anymore). 
 	let l:c = col('.')
-	normal! gvp```]
+	normal! gvP`]
 	let l:c = col('.') - c
 	normal! ``
 	call cursor( line('.'), col('.') + l:c )
     else
-	normal! gvp``
+	normal! gvP``
     endif
 endfunction
 
