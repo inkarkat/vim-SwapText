@@ -36,11 +36,13 @@ function! s:SwapTextVisual()
 	" the right of the change don't get adjusted to correct for the change,
 	" but stay pointing at the exact same column as before the change (which
 	" is not the right place anymore). 
-	let l:c = col('.')
+	let l:deletedTextLen = len(@@)
 	normal! gvP`]
-	let l:c = col('.') - c
+	let l:replacedTextLen = len(@@)
+	let l:correction = l:deletedTextLen - l:replacedTextLen
+"****D echo '**** corrected for ' . l:correction. ' characters.'
 	normal! ``
-	call cursor( line('.'), col('.') + l:c )
+	call cursor( line('.'), col('.') + l:correction )
     else
 	normal! gvP``
     endif
