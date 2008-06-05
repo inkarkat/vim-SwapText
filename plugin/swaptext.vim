@@ -81,6 +81,10 @@ function! s:SwapTextOperator( type )
     " mark.
     let l:save_sel = &selection
     set selection=inclusive
+
+    " Inside the operatorfunc, the jump mark (``) can somehow not be used to
+    " save the position of the deleted text (as is done in the visual mode
+    " swap). Instead, we use a normal register. 
     if a:type == 'char'
 	call s:SwapTextCharacterwise( '`[v`]P', '`.mz`[v`]P`zP' )
     elseif a:type == 'line'
@@ -88,6 +92,7 @@ function! s:SwapTextOperator( type )
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
+
     let &selection = l:save_sel
 endfunction
 
@@ -107,7 +112,10 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextVisual()<CR>
+vnoremap <script> <Plug>SwapTextVisual :<C-U>call <SID>SwapTextVisual()<CR>
+if ! hasmapto('<Plug>SwapTextVisual')
+    vmap <silent> <Leader>x <Plug>SwapTextVisual
+endif
 
 " Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
@@ -116,6 +124,9 @@ vnoremap <silent> <Leader>x :<C-U>call <SID>SwapTextVisual()<CR>
 if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
     " introduced in VIM 7.0. Cp. ':help :map-operator'. 
-    nmap <silent> <Leader>x :set opfunc=<SID>SwapTextOperator<CR>g@
+    nnoremap <script> <Plug>SwapTextOperator :set opfunc=<SID>SwapTextOperator<CR>g@
+    if ! hasmapto('<Plug>SwapTextOperator')
+	nmap <silent> <Leader>x <Plug>SwapTextOperator
+    endif
 endif
 
