@@ -3,8 +3,9 @@
 " DESCRIPTION:
 " USAGE:
 "   First, delete some text (using any normal VIM command, such as 'daw',
-"   {Visual}x, or 'dt'). Then, visually select some other text, and press the
-"   mapped key.  The two pieces of text should now be swapped. 
+"   {Visual}x, or 'dt'). Then, visually select some other text, and press 
+"   <Leader>x, or use the custom operator, e.g. <Leader>xw. The two pieces of
+"   text should now be swapped. 
 "
 " INSTALLATION:
 " DEPENDENCIES:
