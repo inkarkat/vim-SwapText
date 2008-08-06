@@ -29,6 +29,7 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	003	30-Jun-2008	Removed unnecessary <script> from mappings. 
 "	002	07-Jun-2007	Changed offset algorithm from calculating
 "				differences to set marks to differences in
 "				pasted text. 
@@ -43,7 +44,7 @@
 "	001	06-Jun-2007	file creation
 
 " Avoid installing twice or when in compatible mode
-if exists("g:loaded_swaptext")
+if exists('g:loaded_swaptext')
     finish
 endif
 let g:loaded_swaptext = 1
@@ -113,7 +114,7 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <script> <Plug>SwapTextVisual :<C-U>call <SID>SwapTextVisual()<CR>
+vnoremap <Plug>SwapTextVisual :<C-U>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextVisual')
     vmap <silent> <Leader>x <Plug>SwapTextVisual
 endif
@@ -125,7 +126,7 @@ endif
 if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
     " introduced in VIM 7.0. Cp. ':help :map-operator'. 
-    nnoremap <script> <Plug>SwapTextOperator :set opfunc=<SID>SwapTextOperator<CR>g@
+    nnoremap <Plug>SwapTextOperator :set opfunc=<SID>SwapTextOperator<CR>g@
     if ! hasmapto('<Plug>SwapTextOperator')
 	nmap <silent> <Leader>x <Plug>SwapTextOperator
     endif
