@@ -29,6 +29,7 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	004	07-Aug-2008	hasmapto() now checks for normal mode. 
 "	003	30-Jun-2008	Removed unnecessary <script> from mappings. 
 "	002	07-Jun-2007	Changed offset algorithm from calculating
 "				differences to set marks to differences in
@@ -127,7 +128,7 @@ if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
     " introduced in VIM 7.0. Cp. ':help :map-operator'. 
     nnoremap <Plug>SwapTextOperator :set opfunc=<SID>SwapTextOperator<CR>g@
-    if ! hasmapto('<Plug>SwapTextOperator')
+    if ! hasmapto('<Plug>SwapTextOperator', 'n')
 	nmap <silent> <Leader>x <Plug>SwapTextOperator
     endif
 endif
