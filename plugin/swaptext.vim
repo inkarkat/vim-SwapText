@@ -4,8 +4,15 @@
 " USAGE:
 "   First, delete some text (using any normal VIM command, such as 'daw',
 "   {Visual}x, or 'dt'). Then, visually select some other text, and press 
-"   <Leader>x, or use the custom operator, e.g. <Leader>xw. The two pieces of
+"   <Leader>x, or use the custom operator <Leader>x{motion}. The two pieces of
 "   text should now be swapped. 
+"
+" {Visual}<Leader>x	Swap the visual selection with the text from the unnamed
+"			register. 
+" <Leader>x{motion}	Swap the area covered by {motion} with the text from the
+"			unnamed register. 
+" [count]<Leader>xx	Swap the current [count] line(s) with the text from the
+"			unnamed register. 
 "
 " INSTALLATION:
 " DEPENDENCIES:
@@ -21,7 +28,7 @@
 " KNOWN PROBLEMS:
 " TODO:
 "
-" Copyright: (C) 2007 by Ingo Karkat
+" Copyright: (C) 2007-2009 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -29,6 +36,7 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	005	21-Mar-2009	Added \xx mapping for linewise swap. 
 "	004	07-Aug-2008	hasmapto() now checks for normal mode. 
 "	003	30-Jun-2008	Removed unnecessary <script> from mappings. 
 "	002	07-Jun-2007	Changed offset algorithm from calculating
@@ -109,6 +117,9 @@ endfunction
 " P	visually selected text is now in the default register, so just paste it. 
 "
 "vnoremap <Leader>x <Esc>`.``gvP``P
+"
+" Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
+"vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
 
 " The simple mapping doesn't work when the deleted text occurs on the right of
 " the selected text (i.e. when you edit against the typical left-to-right
@@ -116,12 +127,14 @@ endfunction
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
 vnoremap <Plug>SwapTextVisual :<C-U>call <SID>SwapTextVisual()<CR>
-if ! hasmapto('<Plug>SwapTextVisual')
+if ! hasmapto('<Plug>SwapTextVisual', 'v')
     vmap <silent> <Leader>x <Plug>SwapTextVisual
 endif
 
-" Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
-"vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
+nnoremap <Plug>SwapTextLines :<C-U>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call <SID>SwapTextVisual()<CR>
+if ! hasmapto('<Plug>SwapTextLines', 'n')
+    nmap <silent> <Leader>xx <Plug>SwapTextLines
+endif
 
 "------------------------------------------------------------------------------
 if v:version >= 700
