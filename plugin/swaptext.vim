@@ -9,14 +9,21 @@
 "
 " {Visual}<Leader>x	Swap the visual selection with the text from the unnamed
 "			register. 
-" <Leader>x{motion}	Swap the area covered by {motion} with the text from the
-"			unnamed register. 
+" <Leader>x{motion}	Swap the characters covered by {motion} with the text
+"			from the unnamed register. 
 " [count]<Leader>xx	Swap the current [count] line(s) with the text from the
+"			unnamed register. 
+" [count]<Leader>X	Swap the characters under the cursor until the end of
+"			the line and [count]-1 more lines with the text from the
 "			unnamed register. 
 "
 " INSTALLATION:
 " DEPENDENCIES:
+"   - Requires VIM 6.0 or higher,
+"     VIM 7.0 or higher for the <Leader>x{motion} mapping. 
+"
 " CONFIGURATION:
+"
 " LIMITATIONS:
 "   - Unless "set virtualedit=all", swapping the last characters in a line will
 "     insert one character short of where the insert should be. This only
@@ -37,6 +44,7 @@
 "
 " REVISION	DATE		REMARKS 
 "	005	21-Mar-2009	Added \xx mapping for linewise swap. 
+"				Added \X mapping for swap until the end of line. 
 "	004	07-Aug-2008	hasmapto() now checks for normal mode. 
 "	003	30-Jun-2008	Removed unnecessary <script> from mappings. 
 "	002	07-Jun-2007	Changed offset algorithm from calculating
@@ -52,8 +60,8 @@
 "				mapping and the operator use the same functions. 
 "	001	06-Jun-2007	file creation
 
-" Avoid installing twice or when in compatible mode
-if exists('g:loaded_swaptext')
+" Avoid installing twice or when in unsupported VIM version. 
+if exists('g:loaded_swaptext') || v:version < 600
     finish
 endif
 let g:loaded_swaptext = 1
@@ -134,6 +142,11 @@ endif
 nnoremap <Plug>SwapTextLines :<C-U>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextLines', 'n')
     nmap <silent> <Leader>xx <Plug>SwapTextLines
+endif
+
+nnoremap <Plug>SwapTextUntilEnd :<C-U>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>:<C-U>call <SID>SwapTextVisual()<CR>
+if ! hasmapto('<Plug>SwapTextUntilEnd', 'n')
+    nmap <silent> <Leader>X <Plug>SwapTextUntilEnd
 endif
 
 "------------------------------------------------------------------------------
