@@ -2,7 +2,7 @@
 "
 " DESCRIPTION:
 " USAGE:
-"   First, delete some text (using any normal VIM command, such as 'daw',
+"   First, delete some text (using any normal Vim command, such as 'daw',
 "   {Visual}x, or 'dt'). Then, visually select some other text, and press 
 "   <Leader>x, or use the custom operator <Leader>x{motion}. The two pieces of
 "   text should now be swapped. 
@@ -19,8 +19,8 @@
 "
 " INSTALLATION:
 " DEPENDENCIES:
-"   - Requires VIM 6.0 or higher,
-"     VIM 7.0 or higher for the <Leader>x{motion} mapping. 
+"   - Requires Vim 6.0 or higher,
+"     Vim 7.0 or higher for the <Leader>x{motion} mapping. 
 "
 " CONFIGURATION:
 "
@@ -43,6 +43,8 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	006	18-Jun-2009	Replaced temporary mark z with mark " and using
+"				g` command to avoid clobbering jumplist. 
 "	005	21-Mar-2009	Added \xx mapping for linewise swap. 
 "				Added \X mapping for swap until the end of line. 
 "	004	07-Aug-2008	hasmapto() now checks for normal mode. 
@@ -55,12 +57,12 @@
 "				adding offset then (which doesn't work when the
 "				swap shortens the line and the mark now points
 "				to after the end of the line. 
-"				Added VIM7 custom operator. 
+"				Added Vim 7 custom operator. 
 "				Refactored code so that both the visual mode
 "				mapping and the operator use the same functions. 
 "	001	06-Jun-2007	file creation
 
-" Avoid installing twice or when in unsupported VIM version. 
+" Avoid installing twice or when in unsupported Vim version. 
 if exists('g:loaded_swaptext') || v:version < 600
     finish
 endif
@@ -101,13 +103,13 @@ function! s:SwapTextOperator( type )
     let l:save_sel = &selection
     set selection=inclusive
 
-    " Inside the operatorfunc, the jump mark (``) can somehow not be used to
+    " Inside the operatorfunc, the context mark (``) can somehow not be used to
     " save the position of the deleted text (as is done in the visual mode
-    " swap). Instead, we use a normal register. 
+    " swap). Instead, we use mark ". 
     if a:type == 'char'
-	call s:SwapTextCharacterwise( '`[v`]P', '`.mz`[v`]P`zP' )
+	call s:SwapTextCharacterwise( '`[v`]P', '`.m"`[v`]Pg`"P' )
     elseif a:type == 'line'
-	normal! `.mz`[V`]P`zP
+	normal! `.m"`[V`]Pg`"P
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
@@ -152,7 +154,7 @@ endif
 "------------------------------------------------------------------------------
 if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
-    " introduced in VIM 7.0. Cp. ':help :map-operator'. 
+    " introduced in Vim 7.0. Cp. ':help :map-operator'. 
     nnoremap <Plug>SwapTextOperator :set opfunc=<SID>SwapTextOperator<CR>g@
     if ! hasmapto('<Plug>SwapTextOperator', 'n')
 	nmap <silent> <Leader>x <Plug>SwapTextOperator
