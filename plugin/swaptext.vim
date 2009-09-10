@@ -19,8 +19,8 @@
 "
 " INSTALLATION:
 " DEPENDENCIES:
-"   - Requires Vim 6.0 or higher,
-"     Vim 7.0 or higher for the <Leader>x{motion} mapping. 
+"   - Requires Vim 6.0 or higher. 
+"   - Requires Vim 7.0 or higher for the <Leader>x{motion} mapping. 
 "
 " CONFIGURATION:
 "
@@ -43,6 +43,8 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	007	04-Jul-2009	Also replacing temporary mark ` with mark " and
+"				using g` command for the visual mode swap. 
 "	006	18-Jun-2009	Replaced temporary mark z with mark " and using
 "				g` command to avoid clobbering jumplist. 
 "	005	21-Mar-2009	Added \xx mapping for linewise swap. 
@@ -93,7 +95,7 @@ function! s:SwapTextCharacterwise( overrideCmd, multipleLineCmd )
 endfunction
 
 function! s:SwapTextVisual()
-    call s:SwapTextCharacterwise( 'gvP', '`.``gvP``P' )
+    call s:SwapTextCharacterwise( 'gvP', '`.`"gvPg`"P' )
 endfunction
 
 function! s:SwapTextOperator( type )
@@ -104,7 +106,7 @@ function! s:SwapTextOperator( type )
     set selection=inclusive
 
     " Inside the operatorfunc, the context mark (``) can somehow not be used to
-    " save the position of the deleted text (as is done in the visual mode
+    " save the position of the deleted text (as was done in the visual mode
     " swap). Instead, we use mark ". 
     if a:type == 'char'
 	call s:SwapTextCharacterwise( '`[v`]P', '`.m"`[v`]Pg`"P' )
