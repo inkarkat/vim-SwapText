@@ -35,7 +35,7 @@
 " KNOWN PROBLEMS:
 " TODO:
 "
-" Copyright: (C) 2007-2009 by Ingo Karkat
+" Copyright: (C) 2007-2010 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -43,6 +43,9 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	009	12-Feb-2010	BUG: Used mark ' instead of mark ", thereby
+"				horribly breaking everything. (It's astounding
+"				how long it took me to notice!) 
 "	008	11-Sep-2009	BUG: Cannot set mark " in Vim 7.0 and 7.1; using
 "				mark z instead; abstracted mark via s:tempMark. 
 "	007	04-Jul-2009	Also replacing temporary mark ` with mark " and
@@ -97,11 +100,11 @@ function! s:SwapTextCharacterwise( overrideCmd, multipleLineCmd )
 endfunction
 
 function! s:SwapTextVisual()
-    call s:SwapTextCharacterwise( 'gvP', '`.`"gvPg`"P' )
+    call s:SwapTextCharacterwise( 'gvP', 'g`.m`gvPg``P' )
 endfunction
 
 " The |'quote| mark can only be set starting in Vim 7.2. 
-let s:tempMark = (v:version < 702 ? 'z' : "'")
+let s:tempMark = (v:version < 702 ? 'z' : '"')
 function! s:SwapTextOperator( type )
     " The 'selection' option is temporarily set to "inclusive" to be able to
     " yank exactly the right text by using Visual mode from the '[ to the ']
@@ -112,10 +115,10 @@ function! s:SwapTextOperator( type )
     " Inside the operatorfunc, the context mark (``) can somehow not be used to
     " save the position of the deleted text (as was done in the visual mode
     " swap). Instead, we use mark ". 
-    if a:type == 'char'
-	call s:SwapTextCharacterwise( '`[v`]P', '`.m' . s:tempMark . '`[v`]Pg`"P' )
-    elseif a:type == 'line'
-	execute 'normal! `.m' . s:tempMark .  '`[V`]Pg`"P'
+    if a:type ==# 'char'
+	call s:SwapTextCharacterwise( '`[v`]P', '`.m' . s:tempMark . '`[v`]Pg`' . s:tempMark . 'P' )
+    elseif a:type ==# 'line'
+	execute 'normal! `.m' . s:tempMark .  '`[V`]Pg`' . s:tempMark . 'P'
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
@@ -126,13 +129,13 @@ endfunction
 " How it works:
 " <ESC>	exits visual mode
 " `.	returns to exact spot of last modification (the deleted text) 
-" ``	jumps back to where you were (exactly) 
+" m`	put the `. mark into ``, as it'll be overridden by the first paste
 " gv	re-selects last visual text 
 " P	put/paste last deleted text over visually selected text 
 " ``	moves to where text was deleted 
 " P	visually selected text is now in the default register, so just paste it. 
 "
-"vnoremap <Leader>x <Esc>`.``gvP``P
+"vnoremap <Leader>x <Esc>`.m`gvP``P
 "
 " Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me): 
 "vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
