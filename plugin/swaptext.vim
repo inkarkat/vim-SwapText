@@ -43,6 +43,10 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	010	12-Feb-2010	After further problems with the used marks, set
+"				jumps, etc., replaced all used marks with a
+"				variable, and was even able to simplify the code
+"				through it. 
 "	009	12-Feb-2010	BUG: Used mark ' instead of mark ", thereby
 "				horribly breaking everything. (It's astounding
 "				how long it took me to notice!) 
@@ -76,35 +80,37 @@ endif
 let g:loaded_swaptext = 1
 
 "- functions ------------------------------------------------------------------
-function! s:SwapTextWithOffsetCorrection( overrideCmd )
+function! s:SwapTextWithOffsetCorrection( pasteCmd )
     " When you change a line by inserting/deleting characters, any marks to
     " the right of the change don't get adjusted to correct for the change,
     " but stay pointing at the exact same column as before the change (which
     " is not the right place anymore). 
     let l:deletedCol = col("'.")
     let l:deletedTextLen = len(@@)
-    execute 'normal! ' . a:overrideCmd
+    execute 'normal! ' . a:pasteCmd
     let l:replacedTextLen = len(@@)
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
-    call cursor( line('.'), l:deletedCol + l:offset )
+    call cursor(line('.'), l:deletedCol + l:offset)
     normal! P
 endfunction
 
-function! s:SwapTextCharacterwise( overrideCmd, multipleLineCmd )
+function! s:SwapText( pasteCmd )
     if line('.') == line("'.") && col('.') < col("'.")
-	call s:SwapTextWithOffsetCorrection( a:overrideCmd )
+	call s:SwapTextWithOffsetCorrection(a:pasteCmd)
     else
-	execute 'normal! ' . a:multipleLineCmd
+	let l:deletedCol = col("'.")
+	let l:deletedLine = line("'.")
+	execute 'normal! ' . a:pasteCmd
+	call cursor(l:deletedLine, l:deletedCol)
+	normal! P
     endif
 endfunction
 
 function! s:SwapTextVisual()
-    call s:SwapTextCharacterwise( 'gvP', 'g`.m`gvPg``P' )
+    call s:SwapText('gvP')
 endfunction
 
-" The |'quote| mark can only be set starting in Vim 7.2. 
-let s:tempMark = (v:version < 702 ? 'z' : '"')
 function! s:SwapTextOperator( type )
     " The 'selection' option is temporarily set to "inclusive" to be able to
     " yank exactly the right text by using Visual mode from the '[ to the ']
@@ -116,9 +122,9 @@ function! s:SwapTextOperator( type )
     " save the position of the deleted text (as was done in the visual mode
     " swap). Instead, we use mark ". 
     if a:type ==# 'char'
-	call s:SwapTextCharacterwise( '`[v`]P', '`.m' . s:tempMark . '`[v`]Pg`' . s:tempMark . 'P' )
+	call s:SwapText('`[v`]P')
     elseif a:type ==# 'line'
-	execute 'normal! `.m' . s:tempMark .  '`[V`]Pg`' . s:tempMark . 'P'
+	call s:SwapText('`[V`]P')
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
