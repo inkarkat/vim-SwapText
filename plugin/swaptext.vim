@@ -43,6 +43,8 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	008	11-Sep-2009	BUG: Cannot set mark " in Vim 7.0 and 7.1; using
+"				mark z instead; abstracted mark via s:tempMark. 
 "	007	04-Jul-2009	Also replacing temporary mark ` with mark " and
 "				using g` command for the visual mode swap. 
 "	006	18-Jun-2009	Replaced temporary mark z with mark " and using
@@ -98,6 +100,8 @@ function! s:SwapTextVisual()
     call s:SwapTextCharacterwise( 'gvP', '`.`"gvPg`"P' )
 endfunction
 
+" The |'quote| mark can only be set starting in Vim 7.2. 
+let s:tempMark = (v:version < 702 ? 'z' : "'")
 function! s:SwapTextOperator( type )
     " The 'selection' option is temporarily set to "inclusive" to be able to
     " yank exactly the right text by using Visual mode from the '[ to the ']
@@ -109,9 +113,9 @@ function! s:SwapTextOperator( type )
     " save the position of the deleted text (as was done in the visual mode
     " swap). Instead, we use mark ". 
     if a:type == 'char'
-	call s:SwapTextCharacterwise( '`[v`]P', '`.m"`[v`]Pg`"P' )
+	call s:SwapTextCharacterwise( '`[v`]P', '`.m' . s:tempMark . '`[v`]Pg`"P' )
     elseif a:type == 'line'
-	normal! `.m"`[V`]Pg`"P
+	execute 'normal! `.m' . s:tempMark .  '`[V`]Pg`"P'
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
