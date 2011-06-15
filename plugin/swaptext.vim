@@ -33,6 +33,9 @@
 "
 " ASSUMPTIONS:
 " KNOWN PROBLEMS:
+"   - Offset correction only works when the entire swap-to text is inside one
+"     line. 
+"
 " TODO:
 "
 " Copyright: (C) 2007-2010 by Ingo Karkat
@@ -47,6 +50,8 @@
 "				jumps, etc., replaced all used marks with a
 "				variable, and was even able to simplify the code
 "				through it. 
+"				ENH: The swap is now atomic, i.e. it can be
+"				undone in a single action. 
 "	009	12-Feb-2010	BUG: Used mark ' instead of mark ", thereby
 "				horribly breaking everything. (It's astounding
 "				how long it took me to notice!) 
@@ -112,6 +117,8 @@ function! s:SwapTextVisual()
 endfunction
 
 function! s:SwapTextOperator( type )
+    undojoin
+
     " The 'selection' option is temporarily set to "inclusive" to be able to
     " yank exactly the right text by using Visual mode from the '[ to the ']
     " mark.
@@ -151,17 +158,17 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <Plug>SwapTextVisual :<C-U>call <SID>SwapTextVisual()<CR>
+vnoremap <Plug>SwapTextVisual :<C-U>undojoin<Bar>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextVisual', 'v')
     vmap <silent> <Leader>x <Plug>SwapTextVisual
 endif
 
-nnoremap <Plug>SwapTextLines :<C-U>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call <SID>SwapTextVisual()<CR>
+nnoremap <Plug>SwapTextLines :<C-U>undojoin<Bar>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextLines', 'n')
     nmap <silent> <Leader>xx <Plug>SwapTextLines
 endif
 
-nnoremap <Plug>SwapTextUntilEnd :<C-U>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>:<C-U>call <SID>SwapTextVisual()<CR>
+nnoremap <Plug>SwapTextUntilEnd :<C-U>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>:<C-U>undojoin<Bar>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextUntilEnd', 'n')
     nmap <silent> <Leader>X <Plug>SwapTextUntilEnd
 endif
@@ -170,7 +177,7 @@ endif
 if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
     " introduced in Vim 7.0. Cp. ':help :map-operator'. 
-    nnoremap <Plug>SwapTextOperator :set opfunc=<SID>SwapTextOperator<CR>g@
+    nnoremap <Plug>SwapTextOperator :<C-U>undojoin<Bar>set opfunc=<SID>SwapTextOperator<CR>g@
     if ! hasmapto('<Plug>SwapTextOperator', 'n')
 	nmap <silent> <Leader>x <Plug>SwapTextOperator
     endif
