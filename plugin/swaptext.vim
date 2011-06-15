@@ -91,9 +91,9 @@ function! s:SwapTextWithOffsetCorrection( pasteCmd )
     " but stay pointing at the exact same column as before the change (which
     " is not the right place anymore). 
     let l:deletedCol = col("'.")
-    let l:deletedTextLen = len(@@)
+    let l:deletedTextLen = len(@")
     execute 'normal! ' . a:pasteCmd
-    let l:replacedTextLen = len(@@)
+    let l:replacedTextLen = len(@")
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
     call cursor(line('.'), l:deletedCol + l:offset)
@@ -125,9 +125,6 @@ function! s:SwapTextOperator( type )
     let l:save_sel = &selection
     set selection=inclusive
 
-    " Inside the operatorfunc, the context mark (``) can somehow not be used to
-    " save the position of the deleted text (as was done in the visual mode
-    " swap). Instead, we use mark ". 
     if a:type ==# 'char'
 	call s:SwapText('`[v`]P')
     elseif a:type ==# 'line'
