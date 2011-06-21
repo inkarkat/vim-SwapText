@@ -38,7 +38,7 @@
 "
 " TODO:
 "
-" Copyright: (C) 2007-2010 by Ingo Karkat
+" Copyright: (C) 2007-2011 by Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -46,6 +46,9 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	011	16-Jun-2011	Remove general "P" command from pasteCmd
+"				argument and rename it selectReplacementCmd. 
+"				Remove outdated comment. 
 "	010	12-Feb-2010	After further problems with the used marks, set
 "				jumps, etc., replaced all used marks with a
 "				variable, and was even able to simplify the code
@@ -85,14 +88,14 @@ endif
 let g:loaded_swaptext = 1
 
 "- functions ------------------------------------------------------------------
-function! s:SwapTextWithOffsetCorrection( pasteCmd )
+function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     " When you change a line by inserting/deleting characters, any marks to
     " the right of the change don't get adjusted to correct for the change,
     " but stay pointing at the exact same column as before the change (which
     " is not the right place anymore). 
     let l:deletedCol = col("'.")
     let l:deletedTextLen = len(@")
-    execute 'normal! ' . a:pasteCmd
+    execute 'normal! ' . a:selectReplacementCmd . 'P'
     let l:replacedTextLen = len(@")
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
@@ -100,20 +103,20 @@ function! s:SwapTextWithOffsetCorrection( pasteCmd )
     normal! P
 endfunction
 
-function! s:SwapText( pasteCmd )
+function! s:SwapText( selectReplacementCmd )
     if line('.') == line("'.") && col('.') < col("'.")
-	call s:SwapTextWithOffsetCorrection(a:pasteCmd)
+	call s:SwapTextWithOffsetCorrection(a:selectReplacementCmd)
     else
 	let l:deletedCol = col("'.")
 	let l:deletedLine = line("'.")
-	execute 'normal! ' . a:pasteCmd
+	execute 'normal! ' . a:selectReplacementCmd . 'P'
 	call cursor(l:deletedLine, l:deletedCol)
 	normal! P
     endif
 endfunction
 
 function! s:SwapTextVisual()
-    call s:SwapText('gvP')
+    call s:SwapText('gv')
 endfunction
 
 function! s:SwapTextOperator( type )
@@ -126,9 +129,9 @@ function! s:SwapTextOperator( type )
     set selection=inclusive
 
     if a:type ==# 'char'
-	call s:SwapText('`[v`]P')
+	call s:SwapText('`[v`]')
     elseif a:type ==# 'line'
-	call s:SwapText('`[V`]P')
+	call s:SwapText('`[V`]')
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
