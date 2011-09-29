@@ -46,6 +46,9 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	012	22-Jun-2011	BUG: Must adapt the deleted line location if
+"				it's below the overridden range; the override
+"				may have changed the number of lines. 
 "	011	16-Jun-2011	Remove general "P" command from pasteCmd
 "				argument and rename it selectReplacementCmd. 
 "				Remove outdated comment. 
@@ -103,13 +106,29 @@ function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     normal! P
 endfunction
 
+function! s:LineCnt( text )
+    return strlen(substitute(a:text, '\n\@!.', '', 'g'))
+endfunction
 function! s:SwapText( selectReplacementCmd )
     if line('.') == line("'.") && col('.') < col("'.")
 	call s:SwapTextWithOffsetCorrection(a:selectReplacementCmd)
     else
 	let l:deletedCol = col("'.")
 	let l:deletedLine = line("'.")
+	let l:deletedLineCnt = s:LineCnt(@")
+
+	" Override with deleted contents. 
 	execute 'normal! ' . a:selectReplacementCmd . 'P'
+"****D echomsg '****' l:deletedCol l:deletedLine l:deletedLineCnt
+	" Must adapt the deleted line location if it's below the overridden
+	" range; the override may have changed the number of lines. 
+	let l:overwrittenLineCnt = s:LineCnt(@")
+	let l:offset = l:deletedLineCnt - l:overwrittenLineCnt
+	if l:deletedLine > line('.')
+	    let l:deletedLine += l:offset
+	endif
+"****D echomsg '****' l:overwrittenLineCnt l:offset
+	" Put overridden contents at the formerly deleted location. 
 	call cursor(l:deletedLine, l:deletedCol)
 	normal! P
     endif
