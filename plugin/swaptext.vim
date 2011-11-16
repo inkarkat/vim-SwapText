@@ -38,7 +38,7 @@
 "
 " TODO:
 "
-" Copyright: (C) 2007-2011 by Ingo Karkat
+" Copyright: (C) 2007-2011 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'. 
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -46,6 +46,8 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	013	30-Sep-2011	Use <silent> for <Plug> mapping instead of
+"				default mapping. 
 "	012	22-Jun-2011	BUG: Must adapt the deleted line location if
 "				it's below the overridden range; the override
 "				may have changed the number of lines. 
@@ -177,28 +179,28 @@ endfunction
 " direction) _and_ both text elements are on the same line. 
 " The following mapping + function explicitly check for that condition and take
 " corrective actions. 
-vnoremap <Plug>SwapTextVisual :<C-U>undojoin<Bar>call <SID>SwapTextVisual()<CR>
+vnoremap <silent> <Plug>SwapTextVisual :<C-U>undojoin<Bar>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextVisual', 'v')
-    vmap <silent> <Leader>x <Plug>SwapTextVisual
+    vmap <Leader>x <Plug>SwapTextVisual
 endif
 
-nnoremap <Plug>SwapTextLines :<C-U>undojoin<Bar>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call <SID>SwapTextVisual()<CR>
+nnoremap <silent> <Plug>SwapTextLines :<C-U>undojoin<Bar>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextLines', 'n')
-    nmap <silent> <Leader>xx <Plug>SwapTextLines
+    nmap <Leader>xx <Plug>SwapTextLines
 endif
 
-nnoremap <Plug>SwapTextUntilEnd :<C-U>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>:<C-U>undojoin<Bar>call <SID>SwapTextVisual()<CR>
+nnoremap <silent> <Plug>SwapTextUntilEnd :<C-U>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>:<C-U>undojoin<Bar>call <SID>SwapTextVisual()<CR>
 if ! hasmapto('<Plug>SwapTextUntilEnd', 'n')
-    nmap <silent> <Leader>X <Plug>SwapTextUntilEnd
+    nmap <Leader>X <Plug>SwapTextUntilEnd
 endif
 
 "------------------------------------------------------------------------------
 if v:version >= 700
     " The custom "swap text" operator uses 'operatorfunc' and 'g@', which were
     " introduced in Vim 7.0. Cp. ':help :map-operator'. 
-    nnoremap <Plug>SwapTextOperator :<C-U>undojoin<Bar>set opfunc=<SID>SwapTextOperator<CR>g@
+    nnoremap <silent> <Plug>SwapTextOperator :<C-U>undojoin<Bar>set opfunc=<SID>SwapTextOperator<CR>g@
     if ! hasmapto('<Plug>SwapTextOperator', 'n')
-	nmap <silent> <Leader>x <Plug>SwapTextOperator
+	nmap <Leader>x <Plug>SwapTextOperator
     endif
 endif
 
