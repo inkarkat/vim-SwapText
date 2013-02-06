@@ -12,6 +12,8 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk. 
 "
 " REVISION	DATE		REMARKS 
+"	015	26-Nov-2011	BUG: Incorrectly placed if..endif broke
+"				<Plug>SwapTextLines. 
 "	014	17-Nov-2011	Split off separate autoload script and
 "				documentation. 
 "	001	06-Jun-2007	file creation
@@ -46,7 +48,7 @@ if ! hasmapto('<Plug>SwapTextVisual', 'v')
     xmap <Leader>x <Plug>SwapTextVisual
 endif
 
-nnoremap <silent> <Plug>SwapTextLines :<C-U>if SwapText#UndoJoin()<Bar>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>call SwapText#Visual()<Bar>endif<CR>
+nnoremap <silent> <Plug>SwapTextLines :<C-U>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
 if ! hasmapto('<Plug>SwapTextLines', 'n')
     nmap <Leader>xx <Plug>SwapTextLines
 endif
