@@ -1,0 +1,95 @@
+*SwapText.txt*          Mappings to exchange text with the previously deleted text. 
+
+			 SWAP TEXT    by Ingo Karkat
+								*SwapText.vim*
+description			|SwapText-description|
+usage				|SwapText-usage|
+installation			|SwapText-installation|
+limitations			|SwapText-limitations|
+known problems			|SwapText-known-problems|
+todo				|SwapText-todo|
+history				|SwapText-history|
+
+==============================================================================
+DESCRIPTION						*SwapText-description*
+
+This plugin allows you to exchange the current selection / line / text covered
+by a motion with the previously deleted text, with a short and simple mapping.
+The swap can be undone as a single action. 
+
+SOURCE									     *
+
+Based on vimtip #470: Map to quickly swap/exchange arbitrary text by Piet
+Delport and an enhancement by ad_scriven@postmaster.co.uk.
+    http://vim.wikia.com/wiki/Swapping_characters,_words_and_lines
+
+==============================================================================
+USAGE							      *SwapText-usage*
+
+First, delete some text (using any normal Vim command, such as 'daw',
+{Visual}x, or 'dt'). Then, visually select some other text, and press
+<Leader>x, or use the custom operator <Leader>x{motion}. The two pieces of
+text should now be swapped. 
+
+			    *v_<Leader>x* *<Leader>x* *<Leader>xx* *<Leader>X*
+{Visual}<Leader>x	Swap the visual selection with the text from the unnamed
+			register. 
+<Leader>x{motion}	Swap the characters covered by {motion} with the text
+			from the unnamed register. 
+[count]<Leader>xx	Swap the current [count] line(s) with the text from the
+			unnamed register. 
+[count]<Leader>X	Swap the characters under the cursor until the end of
+			the line and [count]-1 more lines with the text from the
+			unnamed register. 
+
+==============================================================================
+INSTALLATION					       *SwapText-installation*
+
+This script is packaged as a |vimball|. If you have the "gunzip" decompressor
+in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
+the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
+vimball or via the |:UseVimball| command. >
+    vim SwapText.vba.gz
+    :so %
+To uninstall, use the |:RmVimball| command. 
+
+DEPENDENCIES					       *SwapText-dependencies*
+
+- Requires Vim 7.0 or higher. 
+
+==============================================================================
+LIMITATIONS						*SwapText-limitations*
+
+- Unless "set virtualedit=all", swapping the last characters in a line will
+  insert one character short of where the insert should be. This only
+  happens when you swap FROM the last characters in a line to somewhere
+  else. If you swap TO (in the natural left-to-right editing order) the last
+  characters in a line, everythings works fine. 
+
+KNOWN PROBLEMS					     *SwapText-known-problems*
+
+- Offset correction only works when the entire swap-to text is inside one
+  line. 
+
+TODO							       *SwapText-todo*
+
+IDEAS							      *SwapText-ideas*
+
+==============================================================================
+HISTORY							    *SwapText-history*
+
+1.00	17-Nov-2011
+First published version. 
+
+0.01	06-Jun-2007
+Started development based on vimtip #470: Map to quickly swap/exchange
+arbitrary text by Piet Delport and an enhancement by
+ad_scriven@postmaster.co.uk.
+
+==============================================================================
+Copyright: (C) 2007-2011 Ingo Karkat
+The VIM LICENSE applies to this script; see |copyright|. 
+
+Maintainer:	Ingo Karkat <ingo@karkat.de>
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
