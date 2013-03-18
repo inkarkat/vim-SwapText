@@ -12,6 +12,9 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk.
 "
 " REVISION	DATE		REMARKS
+"	017	19-Mar-2013	Revert: Last change broke swapping. Replace
+"				<Bar> with <CR>; because SwapText#Visual() uses
+"				gv, the selection must have been established.
 "	016	18-Feb-2013	Reformat and replace <CR>: with <Bar>.
 "				Change <Plug>-mapping names.
 "	015	26-Nov-2011	BUG: Incorrectly placed if..endif broke
@@ -54,15 +57,15 @@ if ! hasmapto('<Plug>(SwapTextVisual)', 'x')
 endif
 
 nnoremap <silent> <Plug>(SwapTextLines)
-\ :<C-u>execute 'normal! V' . v:count1 . '_'<Bar>
-\if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+\ :<C-u>execute 'normal! V' . v:count1 . '_'<CR>
+\:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextLines)', 'n')
     nmap <Leader>xx <Plug>(SwapTextLines)
 endif
 
 nnoremap <silent> <Plug>(SwapTextUntilEnd)
-\ :<C-u>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<Bar>
-\if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+\ :<C-u>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>
+\:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextUntilEnd)', 'n')
     nmap <Leader>X <Plug>(SwapTextUntilEnd)
 endif
