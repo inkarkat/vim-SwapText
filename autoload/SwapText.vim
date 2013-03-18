@@ -94,13 +94,13 @@ function! s:SwapText( selectReplacementCmd )
 	" Put overridden contents at the formerly deleted location.
 	call cursor(l:deletedLine, l:deletedCol)
 	let l:isAtEndOfDeletedLine = (l:deletedVirtCol + 1 == virtcol('$'))
-"****D echomsg '****' l:deletedLine l:deletedCol string(getpos('.')) l:isAtEndOfDeletedLine
-	if l:isAtEndOfDeletedLine
-	    " Because the '[,'] marks are already set to the current swap area,
-	    " we cannot use them to determine whether the previous deletion was
-	    " before or after the cursor position. As a deletion to the end of
-	    " the line is more likely than one up to the last character of the
-	    " line, be correct for that.
+	" Because the '[,'] marks are already set to the current swap area, we
+	" cannot use them any more to determine whether the previous deletion
+	" was before or after the cursor position. Therefore we save that
+	" position at the start of the mapping.
+	let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] > l:deletedCol)
+"****D echomsg '****' l:deletedLine l:deletedCol string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
+	if l:isAtEndOfDeletedLine && l:wasDeletionAtEndOfLine
 	    normal! p
 	else
 	    normal! P
@@ -109,6 +109,7 @@ function! s:SwapText( selectReplacementCmd )
 endfunction
 
 function! SwapText#Visual()
+    let s:deletedStartPos = getpos("'[")
     call s:SwapText('gv')
 endfunction
 
@@ -157,6 +158,8 @@ function! SwapText#OperatorExpr()
     if ! SwapText#UndoJoin()
 	return ''
     endif
+
+    let s:deletedStartPos = getpos("'[")
 
     set opfunc=SwapText#Operator
 
