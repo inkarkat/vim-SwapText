@@ -53,6 +53,20 @@
 "				mapping and the operator use the same functions.
 "	001	06-Jun-2007	file creation
 
+function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol )
+    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + 1 == virtcol('$'))
+    if ! l:isAtEndOfDeletedLine
+	return 0
+    endif
+
+    " Because the '[,'] marks are already set to the current swap area, we
+    " cannot use them any more to determine whether the previous deletion
+    " was before or after the cursor position. Therefore we save that
+    " position at the start of the mapping.
+    let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] > a:deletedCol)
+echomsg '****' string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
+    return l:wasDeletionAtEndOfLine
+endfunction
 function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     " When you change a line by inserting/deleting characters, any marks to
     " the right of the change don't get adjusted to correct for the change,
@@ -93,14 +107,7 @@ function! s:SwapText( selectReplacementCmd )
 "****D echomsg '****' l:overwrittenLineCnt l:offset
 	" Put overridden contents at the formerly deleted location.
 	call cursor(l:deletedLine, l:deletedCol)
-	let l:isAtEndOfDeletedLine = (l:deletedVirtCol + 1 == virtcol('$'))
-	" Because the '[,'] marks are already set to the current swap area, we
-	" cannot use them any more to determine whether the previous deletion
-	" was before or after the cursor position. Therefore we save that
-	" position at the start of the mapping.
-	let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] > l:deletedCol)
-"****D echomsg '****' l:deletedLine l:deletedCol string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
-	if l:isAtEndOfDeletedLine && l:wasDeletionAtEndOfLine
+	if s:WasDeletionAtEndOfLine(l:deletedCol, l:deletedVirtCol)
 	    normal! p
 	else
 	    normal! P
