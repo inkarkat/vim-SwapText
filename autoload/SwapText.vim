@@ -1,6 +1,11 @@
 " SwapText.vim: Mappings to exchange text with the previously deleted text.
 "
 " REVISION	DATE		REMARKS
+"   	015	28-Aug-2012	For the operators, handle readonly and
+"				nomodifiable buffers by printing just the
+"				warning / error, without the multi-line function
+"				error. (Unlikely as it may be, as the user must
+"				have done a delete first, anyway.)
 "	014	17-Nov-2011	ENH: Handle :undojoin failure when user did undo
 "				between delete and swap. To avoid a potential
 "				swap with wrong register contents, error in this
@@ -142,7 +147,18 @@ function! SwapText#OperatorExpr()
     endif
 
     set opfunc=SwapText#Operator
-    return 'g@'
+
+    let l:keys = 'g@'
+
+    if ! &l:modifiable || &l:readonly
+	" Probe for "Cannot make changes" error and readonly warning via a no-op
+	" dummy modification.
+	" In the case of a nomodifiable buffer, Vim will abort the normal mode
+	" command chain, discard the g@, and thus not invoke the operatorfunc.
+	let l:keys = ":call setline('.', getline('.'))\<CR>" . l:keys
+    endif
+
+    return l:keys
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
