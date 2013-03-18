@@ -2,9 +2,9 @@
 "
 " DEPENDENCIES:
 "   - Requires Vim 7.0 or higher.
-"   - SwapText.vim autoload script.
+"   - SwapText.vim autoload script
 "
-" Copyright: (C) 2007-2011 Ingo Karkat
+" Copyright: (C) 2007-2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -12,6 +12,8 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk.
 "
 " REVISION	DATE		REMARKS
+"	016	18-Feb-2013	Reformat and replace <CR>: with <Bar>.
+"				Change <Plug>-mapping names.
 "	015	26-Nov-2011	BUG: Incorrectly placed if..endif broke
 "				<Plug>SwapTextLines.
 "	014	17-Nov-2011	Split off separate autoload script and
@@ -23,6 +25,8 @@ if exists('g:loaded_SwapText') || (v:version < 700)
     finish
 endif
 let g:loaded_SwapText = 1
+let s:save_cpo = &cpo
+set cpo&vim
 
 " How it works:
 " <ESC>	exits visual mode
@@ -43,24 +47,31 @@ let g:loaded_SwapText = 1
 " direction) _and_ both text elements are on the same line.
 " The following mapping + function explicitly check for that condition and take
 " corrective actions.
-vnoremap <silent> <Plug>SwapTextVisual :<C-U>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
-if ! hasmapto('<Plug>SwapTextVisual', 'x')
-    xmap <Leader>x <Plug>SwapTextVisual
+vnoremap <silent> <Plug>(SwapTextVisual)
+\ :<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+if ! hasmapto('<Plug>(SwapTextVisual)', 'x')
+    xmap <Leader>x <Plug>(SwapTextVisual)
 endif
 
-nnoremap <silent> <Plug>SwapTextLines :<C-U>execute 'normal! V' . v:count1 . '_'<CR>:<C-U>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
-if ! hasmapto('<Plug>SwapTextLines', 'n')
-    nmap <Leader>xx <Plug>SwapTextLines
+nnoremap <silent> <Plug>(SwapTextLines)
+\ :<C-u>execute 'normal! V' . v:count1 . '_'<Bar>
+\if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+if ! hasmapto('<Plug>(SwapTextLines)', 'n')
+    nmap <Leader>xx <Plug>(SwapTextLines)
 endif
 
-nnoremap <silent> <Plug>SwapTextUntilEnd :<C-U>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>:<C-U>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
-if ! hasmapto('<Plug>SwapTextUntilEnd', 'n')
-    nmap <Leader>X <Plug>SwapTextUntilEnd
+nnoremap <silent> <Plug>(SwapTextUntilEnd)
+\ :<C-u>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<Bar>
+\if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+if ! hasmapto('<Plug>(SwapTextUntilEnd)', 'n')
+    nmap <Leader>X <Plug>(SwapTextUntilEnd)
 endif
 
-nnoremap <silent> <expr> <Plug>SwapTextOperator SwapText#OperatorExpr()
-if ! hasmapto('<Plug>SwapTextOperator', 'n')
-    nmap <Leader>x <Plug>SwapTextOperator
+nnoremap <silent> <expr> <Plug>(SwapTextOperator) SwapText#OperatorExpr()
+if ! hasmapto('<Plug>(SwapTextOperator)', 'n')
+    nmap <Leader>x <Plug>(SwapTextOperator)
 endif
 
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
