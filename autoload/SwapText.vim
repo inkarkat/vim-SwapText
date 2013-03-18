@@ -76,6 +76,7 @@ function! s:SwapText( selectReplacementCmd )
 	call s:SwapTextWithOffsetCorrection(a:selectReplacementCmd)
     else
 	let l:deletedCol = col("'.")
+	let l:deletedVirtCol = virtcol("'.")
 	let l:deletedLine = line("'.")
 	let l:deletedLineCnt = s:LineCnt(@")
 
@@ -92,7 +93,18 @@ function! s:SwapText( selectReplacementCmd )
 "****D echomsg '****' l:overwrittenLineCnt l:offset
 	" Put overridden contents at the formerly deleted location.
 	call cursor(l:deletedLine, l:deletedCol)
-	normal! P
+	let l:isAtEndOfDeletedLine = (l:deletedVirtCol + 1 == virtcol('$'))
+"****D echomsg '****' l:deletedLine l:deletedCol string(getpos('.')) l:isAtEndOfDeletedLine
+	if l:isAtEndOfDeletedLine
+	    " Because the '[,'] marks are already set to the current swap area,
+	    " we cannot use them to determine whether the previous deletion was
+	    " before or after the cursor position. As a deletion to the end of
+	    " the line is more likely than one up to the last character of the
+	    " line, be correct for that.
+	    normal! p
+	else
+	    normal! P
+	endif
     endif
 endfunction
 
