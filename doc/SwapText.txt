@@ -1,4 +1,4 @@
-*SwapText.txt*          Mappings to exchange text with the previously deleted text. 
+*SwapText.txt*          Mappings to exchange text with the previously deleted text.
 
 			 SWAP TEXT    by Ingo Karkat
 								*SwapText.vim*
@@ -15,7 +15,7 @@ DESCRIPTION						*SwapText-description*
 
 This plugin allows you to exchange the current selection / line / text covered
 by a motion with the previously deleted text, with a short and simple mapping.
-The swap can be undone as a single action. 
+The swap can be undone as a single action.
 
 SOURCE									     *
 
@@ -29,18 +29,18 @@ USAGE							      *SwapText-usage*
 First, delete some text (using any normal Vim command, such as 'daw',
 {Visual}x, or 'dt'). Then, visually select some other text, and press
 <Leader>x, or use the custom operator <Leader>x{motion}. The two pieces of
-text should now be swapped. 
+text should now be swapped.
 
 			    *v_<Leader>x* *<Leader>x* *<Leader>xx* *<Leader>X*
 {Visual}<Leader>x	Swap the visual selection with the text from the unnamed
-			register. 
+			register.
 <Leader>x{motion}	Swap the characters covered by {motion} with the text
-			from the unnamed register. 
+			from the unnamed register.
 [count]<Leader>xx	Swap the current [count] line(s) with the text from the
-			unnamed register. 
+			unnamed register.
 [count]<Leader>X	Swap the characters under the cursor until the end of
 			the line and [count]-1 more lines with the text from the
-			unnamed register. 
+			unnamed register.
 
 ==============================================================================
 INSTALLATION					       *SwapText-installation*
@@ -51,11 +51,11 @@ the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
 vimball or via the |:UseVimball| command. >
     vim SwapText.vba.gz
     :so %
-To uninstall, use the |:RmVimball| command. 
+To uninstall, use the |:RmVimball| command.
 
 DEPENDENCIES					       *SwapText-dependencies*
 
-- Requires Vim 7.0 or higher. 
+- Requires Vim 7.0 or higher.
 
 ==============================================================================
 LIMITATIONS						*SwapText-limitations*
@@ -64,12 +64,12 @@ LIMITATIONS						*SwapText-limitations*
   insert one character short of where the insert should be. This only
   happens when you swap FROM the last characters in a line to somewhere
   else. If you swap TO (in the natural left-to-right editing order) the last
-  characters in a line, everythings works fine. 
+  characters in a line, everythings works fine.
 
 KNOWN PROBLEMS					     *SwapText-known-problems*
 
 - Offset correction only works when the entire swap-to text is inside one
-  line. 
+  line.
 
 TODO							       *SwapText-todo*
 
@@ -79,7 +79,7 @@ IDEAS							      *SwapText-ideas*
 HISTORY							    *SwapText-history*
 
 1.00	17-Nov-2011
-First published version. 
+First published version.
 
 0.01	06-Jun-2007
 Started development based on vimtip #470: Map to quickly swap/exchange
@@ -88,7 +88,7 @@ ad_scriven@postmaster.co.uk.
 
 ==============================================================================
 Copyright: (C) 2007-2011 Ingo Karkat
-The VIM LICENSE applies to this script; see |copyright|. 
+The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
 ==============================================================================
