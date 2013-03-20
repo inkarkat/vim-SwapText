@@ -1,6 +1,19 @@
 " SwapText.vim: Mappings to exchange text with the previously deleted text.
 "
+" DEPENDENCIES:
+"
+" Copyright: (C) 2007-2013 Ingo Karkat
+"   The VIM LICENSE applies to this script; see ':help copyright'.
+"
+" Maintainer:	Ingo Karkat <ingo@karkat.de>
+"
 " REVISION	DATE		REMARKS
+"	016	19-Mar-2013	Handle deletion at the end of a line by checking
+"				for the delete cursor position being at the end
+"				of the line and (via the stored
+"				s:deletedStartPos, as the '[ mark gets
+"				clobbered) whether the deletion actually started
+"				after it.
 "   	015	28-Aug-2012	For the operators, handle readonly and
 "				nomodifiable buffers by printing just the
 "				warning / error, without the multi-line function
@@ -64,22 +77,31 @@ function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol )
     " was before or after the cursor position. Therefore we save that
     " position at the start of the mapping.
     let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] > a:deletedCol)
-echomsg '****' string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
+"****D echomsg '****' string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
     return l:wasDeletionAtEndOfLine
 endfunction
+function! s:Replace( deletedCol, deletedVirtCol )
+    if s:WasDeletionAtEndOfLine(a:deletedCol, a:deletedVirtCol)
+	normal! p
+    else
+	normal! P
+    endif
+endfunction
+
 function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     " When you change a line by inserting/deleting characters, any marks to
     " the right of the change don't get adjusted to correct for the change,
     " but stay pointing at the exact same column as before the change (which
     " is not the right place anymore).
     let l:deletedCol = col("'.")
+    let l:deletedVirtCol = virtcol("'.")
     let l:deletedTextLen = len(@")
     execute 'normal! ' . a:selectReplacementCmd . 'P'
     let l:replacedTextLen = len(@")
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
     call cursor(line('.'), l:deletedCol + l:offset)
-    normal! P
+    call s:Replace(l:deletedCol, l:deletedVirtCol)
 endfunction
 
 function! s:LineCnt( text )
@@ -107,11 +129,7 @@ function! s:SwapText( selectReplacementCmd )
 "****D echomsg '****' l:overwrittenLineCnt l:offset
 	" Put overridden contents at the formerly deleted location.
 	call cursor(l:deletedLine, l:deletedCol)
-	if s:WasDeletionAtEndOfLine(l:deletedCol, l:deletedVirtCol)
-	    normal! p
-	else
-	    normal! P
-	endif
+	call s:Replace(l:deletedCol, l:deletedVirtCol)
     endif
 endfunction
 
