@@ -8,6 +8,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	017	21-Mar-2013	Avoid changing the jumplist.
 "	016	19-Mar-2013	Handle deletion at the end of a line by checking
 "				for the delete cursor position being at the end
 "				of the line and (via the stored
@@ -149,9 +150,9 @@ function! SwapText#Operator( type )
     set selection=inclusive
 
     if a:type ==# 'char'
-	call s:SwapText('`[v`]')
+	call s:SwapText('g`[vg`]')
     elseif a:type ==# 'line'
-	call s:SwapText('`[V`]')
+	call s:SwapText('g`[Vg`]')
     else
 	throw 'ASSERT: There is no blockwise visual motion, because we have a special vmap.'
     endif
