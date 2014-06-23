@@ -39,38 +39,40 @@ First, delete some text (using any normal Vim command, such as 'daw',
 text should now be swapped.
 
 			    *v_<Leader>x* *<Leader>x* *<Leader>xx* *<Leader>X*
-{Visual}<Leader>x	Swap the visual selection with the text from the unnamed
-			register.
-<Leader>x{motion}	Swap the characters covered by {motion} with the text
-			from the unnamed register.
-[count]<Leader>xx	Swap the current [count] line(s) with the text from the
-			unnamed register.
-[count]<Leader>X	Swap the characters under the cursor until the end of
-			the line and [count]-1 more lines with the text from the
-			unnamed register.
+{Visual}["x]<Leader>x	Swap the visual selection with the text from register
+			x (default: unnamed register).
+["x]<Leader>x{motion}	Swap the characters covered by {motion} with the text
+			from register x.
+[count]["x]<Leader>xx	Swap the current [count] line(s) with the text from
+			register x.
+[count]["x]<Leader>X	Swap the characters under the cursor until the end of
+			the line and [count]-1 more lines with the text from
+			register x.
 
 ==============================================================================
 INSTALLATION					       *SwapText-installation*
 
 This script is packaged as a |vimball|. If you have the "gunzip" decompressor
-in your PATH, simply edit the *.vba.gz package in Vim; otherwise, decompress
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
 the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
 vimball or via the |:UseVimball| command. >
-    vim SwapText.vba.gz
+    vim SwapText*.vmb.gz
     :so %
 To uninstall, use the |:RmVimball| command.
 
 DEPENDENCIES					       *SwapText-dependencies*
 
 - Requires Vim 7.0 or higher.
+- Requires the |ingo-library.vim| plugin (vimscript #4433), version 1.005 or
+  higher.
 
 ==============================================================================
 LIMITATIONS						*SwapText-limitations*
 
-- Unless "set virtualedit=all", swapping the last characters in a line will
+- Unless :set virtualedit=all, swapping the last characters in a line will
   insert one character short of where the insert should be. This only
-  happens when you swap FROM the last characters in a line to somewhere
-  else. If you swap TO (in the natural left-to-right editing order) the last
+  happens when you swap FROM the last characters in a line to somewhere else.
+  If you swap TO (in the natural left-to-right editing order) the last
   characters in a line, everythings works fine.
 
 KNOWN PROBLEMS					     *SwapText-known-problems*
@@ -94,7 +96,7 @@ arbitrary text by Piet Delport and an enhancement by
 ad_scriven@postmaster.co.uk.
 
 ==============================================================================
-Copyright: (C) 2007-2013 Ingo Karkat
+Copyright: (C) 2007-2014 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
