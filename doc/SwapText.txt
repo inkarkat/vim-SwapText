@@ -23,6 +23,13 @@ Based on vimtip #470: Map to quickly swap/exchange arbitrary text by Piet
 Delport and an enhancement by ad_scriven@postmaster.co.uk.
     http://vim.wikia.com/wiki/Swapping_characters,_words_and_lines
 
+SEE ALSO								     *
+
+- visswap.vim (http://www.drchip.org/astronaut/vim/vbafiles/visswap.vba.gz)
+  uses a visual selection, <C-y>, another selection, <C-x> to swap the two.
+- swap.vim (vimscript #3250) can swap around a pivot (e.g. ==) or to WORDs to
+  the left / right with <Leader>x / <Leader>X.
+
 ==============================================================================
 USAGE							      *SwapText-usage*
 
@@ -87,7 +94,7 @@ arbitrary text by Piet Delport and an enhancement by
 ad_scriven@postmaster.co.uk.
 
 ==============================================================================
-Copyright: (C) 2007-2011 Ingo Karkat
+Copyright: (C) 2007-2013 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
