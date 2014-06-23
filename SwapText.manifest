@@ -1,0 +1,3 @@
+autoload/SwapText.vim
+plugin/SwapText.vim
+doc/SwapText.txt
