@@ -1,13 +1,15 @@
 " SwapText.vim: Mappings to exchange text with the previously deleted text.
 "
 " DEPENDENCIES:
+"   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2007-2013 Ingo Karkat
+" Copyright: (C) 2007-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	018	05-May-2014	Abort on error.
 "	017	21-Mar-2013	Avoid changing the jumplist.
 "	016	19-Mar-2013	Handle deletion at the end of a line by checking
 "				for the delete cursor position being at the end
@@ -172,10 +174,7 @@ function! SwapText#UndoJoin()
 	undojoin
 	return 1
     catch /^Vim\%((\a\+)\)\=:E790/	" E790: undojoin is not allowed after undo
-	let v:errmsg = 'Cannot swap after undo'
-	echohl ErrorMsg
-	echomsg v:errmsg
-	echohl None
+	call ingo#err#Set('Cannot swap after undo')
 	return 0
     endtry
 endfunction
