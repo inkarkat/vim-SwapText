@@ -3,8 +3,9 @@
 " DEPENDENCIES:
 "   - Requires Vim 7.0 or higher.
 "   - SwapText.vim autoload script
+"   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2007-2013 Ingo Karkat
+" Copyright: (C) 2007-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -12,6 +13,7 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk.
 "
 " REVISION	DATE		REMARKS
+"	018	05-May-2014	Abort on error.
 "	017	19-Mar-2013	Revert: Last change broke swapping. Replace
 "				<Bar> with <CR>; because SwapText#Visual() uses
 "				gv, the selection must have been established.
@@ -51,21 +53,21 @@ set cpo&vim
 " The following mapping + function explicitly check for that condition and take
 " corrective actions.
 vnoremap <silent> <Plug>(SwapTextVisual)
-\ :<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+\ :<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>else<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextVisual)', 'x')
     xmap <Leader>x <Plug>(SwapTextVisual)
 endif
 
 nnoremap <silent> <Plug>(SwapTextLines)
 \ :<C-u>execute 'normal! V' . v:count1 . '_'<CR>
-\:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+\:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>else<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextLines)', 'n')
     nmap <Leader>xx <Plug>(SwapTextLines)
 endif
 
 nnoremap <silent> <Plug>(SwapTextUntilEnd)
 \ :<C-u>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>
-\:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>endif<CR>
+\:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>else<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextUntilEnd)', 'n')
     nmap <Leader>X <Plug>(SwapTextUntilEnd)
 endif
