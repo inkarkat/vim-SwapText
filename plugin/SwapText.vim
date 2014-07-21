@@ -63,7 +63,7 @@ if ! hasmapto('<Plug>(SwapTextLines)', 'n')
 endif
 
 nnoremap <silent> <Plug>(SwapTextUntilEnd)
-\ :<C-u>execute 'normal! v$' . (v:count > 1 ? (v:count - 1) . 'j' : '')<CR>
+\ :<C-u>execute 'normal! v' . (v:count ? v:count : '') . '$'<CR>
 \:<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>else<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextUntilEnd)', 'n')
     nmap <Leader>X <Plug>(SwapTextUntilEnd)
