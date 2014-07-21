@@ -13,7 +13,7 @@
 "	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk.
 "
 " REVISION	DATE		REMARKS
-"	018	05-May-2014	Abort on error.
+"   1.00.018	05-May-2014	Abort on error.
 "	017	19-Mar-2013	Revert: Last change broke swapping. Replace
 "				<Bar> with <CR>; because SwapText#Visual() uses
 "				gv, the selection must have been established.
@@ -43,15 +43,12 @@ set cpo&vim
 " P	visually selected text is now in the default register, so just paste it.
 "
 "vnoremap <Leader>x <Esc>`.m`gvP``P
-"
-" Original enhancement from ad_scriven@postmaster.co.uk (didn't work for me):
-"vnoremap <silent> <Leader>x <Esc>`.``:exe line(".")==line("'.") && col(".") < col("'.") ? 'norm! :let c=col(".")<CR>gvp```]:let c=col(".")-c<CR>``:silent call cursor(line("."),col(".")+c)<CR>P' : "norm! gvp``P"<CR>
 
 " The simple mapping doesn't work when the deleted text occurs on the right of
 " the selected text (i.e. when you edit against the typical left-to-right
 " direction) _and_ both text elements are on the same line.
-" The following mapping + function explicitly check for that condition and take
-" corrective actions.
+" This implementation explicitly checks for that condition and takes corrective
+" actions.
 vnoremap <silent> <Plug>(SwapTextVisual)
 \ :<C-u>if SwapText#UndoJoin()<Bar>call SwapText#Visual()<Bar>else<Bar>echoerr ingo#err#Get()<Bar>endif<CR>
 if ! hasmapto('<Plug>(SwapTextVisual)', 'x')
