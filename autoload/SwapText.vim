@@ -9,6 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.019	24-Jun-2014	Prepare for publishing.
 "	018	05-May-2014	Abort on error.
 "	017	21-Mar-2013	Avoid changing the jumplist.
 "	016	19-Mar-2013	Handle deletion at the end of a line by checking
@@ -84,11 +85,7 @@ function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol )
     return l:wasDeletionAtEndOfLine
 endfunction
 function! s:Replace( deletedCol, deletedVirtCol )
-    if s:WasDeletionAtEndOfLine(a:deletedCol, a:deletedVirtCol)
-	normal! p
-    else
-	normal! P
-    endif
+    execute 'normal!' (s:WasDeletionAtEndOfLine(a:deletedCol, a:deletedVirtCol) ? 'p' : 'P')
 endfunction
 
 function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
@@ -120,7 +117,7 @@ function! s:SwapText( selectReplacementCmd )
 	let l:deletedLineCnt = s:LineCnt(@")
 
 	" Override with deleted contents.
-	execute 'normal! ' . a:selectReplacementCmd . 'P'
+	execute 'normal!' a:selectReplacementCmd . 'P'
 "****D echomsg '****' l:deletedCol l:deletedLine l:deletedLineCnt
 	" Must adapt the deleted line location if it's below the overridden
 	" range; the override may have changed the number of lines.
