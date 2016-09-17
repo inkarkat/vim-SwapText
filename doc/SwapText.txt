@@ -104,6 +104,10 @@ IDEAS							      *SwapText-ideas*
 ==============================================================================
 HISTORY							    *SwapText-history*
 
+1.02	RELEASEME
+- "E790: undojoin is not allowed after undo" may also be raised in
+  SwapText#Operator(); ignore it.
+
 1.01	22-Jul-2014
 - BUG: <Leader>X includes the newline unless :set selection=exclusive. Thanks
   to Enno Nagel for reporting this.
@@ -117,7 +121,7 @@ arbitrary text by Piet Delport and an enhancement by
 ad_scriven@postmaster.co.uk.
 
 ==============================================================================
-Copyright: (C) 2007-2014 Ingo Karkat
+Copyright: (C) 2007-2015 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
