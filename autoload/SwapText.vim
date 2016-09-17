@@ -3,12 +3,15 @@
 " DEPENDENCIES:
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2007-2014 Ingo Karkat
+" Copyright: (C) 2007-2015 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.02.020	04-Feb-2015	"E790: undojoin is not allowed after undo" may
+"				also be raised in SwapText#Operator(); ignore
+"				it.
 "   1.00.019	24-Jun-2014	Prepare for publishing.
 "	018	05-May-2014	Abort on error.
 "	017	21-Mar-2013	Avoid changing the jumplist.
@@ -140,7 +143,8 @@ endfunction
 
 function! SwapText#Operator( type )
     " The operator needs another undojoin for the operator action itself.
-    undojoin
+    " Ignore any E790 in here; I hope that's fine.
+    call SwapText#UndoJoin()
 
     " The 'selection' option is temporarily set to "inclusive" to be able to
     " yank exactly the right text by using Visual mode from the '[ to the ']
