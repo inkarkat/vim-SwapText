@@ -104,7 +104,7 @@ IDEAS							      *SwapText-ideas*
 ==============================================================================
 HISTORY							    *SwapText-history*
 
-1.02	RELEASEME
+1.02	19-Sep-2016
 - "E790: undojoin is not allowed after undo" may also be raised in
   SwapText#Operator(); ignore it.
 - BUG: When deleting at the end of a line, and swapping with a longer text
