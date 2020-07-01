@@ -3,12 +3,21 @@
 " DEPENDENCIES:
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2007-2015 Ingo Karkat
+" Copyright: (C) 2007-2016 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.02.021	18-Sep-2016	BUG: When deleting at the end of a line, and
+"				swapping with a longer text before it, the swap
+"				location is off by one. The EOL position isn't
+"				properly detected, because the virtual line
+"				length after the paste is used in the condition.
+"				Save the deleted virtual line length in
+"				deletedVirtLen, and pass that on to
+"				s:WasDeletionAtEndOfLine(). Thanks to Marcelo
+"				Montu for the bug report.
 "   1.02.020	04-Feb-2015	"E790: undojoin is not allowed after undo" may
 "				also be raised in SwapText#Operator(); ignore
 "				it.
@@ -73,8 +82,8 @@
 "				mapping and the operator use the same functions.
 "	001	06-Jun-2007	file creation
 
-function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol )
-    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + 1 == virtcol('$'))
+function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol, deletedVirtLen )
+    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + 1 == a:deletedVirtLen)
     if ! l:isAtEndOfDeletedLine
 	return 0
     endif
@@ -87,8 +96,8 @@ function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol )
 "****D echomsg '****' string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
     return l:wasDeletionAtEndOfLine
 endfunction
-function! s:Replace( deletedCol, deletedVirtCol )
-    execute 'normal!' (s:WasDeletionAtEndOfLine(a:deletedCol, a:deletedVirtCol) ? 'p' : 'P')
+function! s:Replace( deletedCol, deletedVirtCol, deletedVirtLen )
+    execute 'normal!' (s:WasDeletionAtEndOfLine(a:deletedCol, a:deletedVirtCol, a:deletedVirtLen) ? 'p' : 'P')
 endfunction
 
 function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
@@ -98,13 +107,14 @@ function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     " is not the right place anymore).
     let l:deletedCol = col("'.")
     let l:deletedVirtCol = virtcol("'.")
+    let l:deletedVirtLen = virtcol('$')
     let l:deletedTextLen = len(@")
     execute 'normal! ' . a:selectReplacementCmd . 'P'
     let l:replacedTextLen = len(@")
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
     call cursor(line('.'), l:deletedCol + l:offset)
-    call s:Replace(l:deletedCol, l:deletedVirtCol)
+    call s:Replace(l:deletedCol, l:deletedVirtCol, l:deletedVirtLen)
 endfunction
 
 function! s:LineCnt( text )
@@ -116,6 +126,7 @@ function! s:SwapText( selectReplacementCmd )
     else
 	let l:deletedCol = col("'.")
 	let l:deletedVirtCol = virtcol("'.")
+	let l:deletedVirtLen = virtcol('$')
 	let l:deletedLine = line("'.")
 	let l:deletedLineCnt = s:LineCnt(@")
 
@@ -132,7 +143,7 @@ function! s:SwapText( selectReplacementCmd )
 "****D echomsg '****' l:overwrittenLineCnt l:offset
 	" Put overridden contents at the formerly deleted location.
 	call cursor(l:deletedLine, l:deletedCol)
-	call s:Replace(l:deletedCol, l:deletedVirtCol)
+	call s:Replace(l:deletedCol, l:deletedVirtCol, l:deletedVirtLen)
     endif
 endfunction
 
