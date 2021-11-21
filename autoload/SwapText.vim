@@ -1,14 +1,16 @@
 " SwapText.vim: Mappings to exchange text with the previously deleted text.
 "
 " DEPENDENCIES:
-"   - ingo/err.vim autoload script
+"   - ingo-library.vim plugin
 "
-" Copyright: (C) 2007-2016 Ingo Karkat
+" Copyright: (C) 2007-2020 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.03.022	02-Jul-2020	Refactoring: Use
+"				ingo#mapmaker#OpfuncExpression().
 "   1.02.021	18-Sep-2016	BUG: When deleting at the end of a line, and
 "				swapping with a longer text before it, the swap
 "				location is off by one. The EOL position isn't
@@ -198,19 +200,7 @@ function! SwapText#OperatorExpr()
 
     let s:deletedStartPos = getpos("'[")
 
-    set opfunc=SwapText#Operator
-
-    let l:keys = 'g@'
-
-    if ! &l:modifiable || &l:readonly
-	" Probe for "Cannot make changes" error and readonly warning via a no-op
-	" dummy modification.
-	" In the case of a nomodifiable buffer, Vim will abort the normal mode
-	" command chain, discard the g@, and thus not invoke the operatorfunc.
-	let l:keys = ":call setline('.', getline('.'))\<CR>" . l:keys
-    endif
-
-    return l:keys
+    return ingo#mapmaker#OpfuncExpression('SwapText#Operator')
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
