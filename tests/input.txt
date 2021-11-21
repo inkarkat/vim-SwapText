@@ -1,0 +1,14 @@
+bar fooz
+bar fooz la
+
+fo bar
+fo bar la
+
+f bar
+f bar la
+
+foo bar
+foo bar la
+
+fooooox bar
+fooooox bar la
