@@ -104,7 +104,8 @@ HISTORY
 ------------------------------------------------------------------------------
 
 ##### 1.03    RELEASEME
--
+- Adapt: Plugin broken since Vim 8.2.4242 (put in Visual mode cannot be
+  repeated); need to use v\_p instead of v\_P command now.
 
 __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scripts/script.php?script_id=4433)) version 1.042!__
 

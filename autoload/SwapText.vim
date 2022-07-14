@@ -35,7 +35,7 @@ function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     let l:deletedVirtCol = virtcol("'.")
     let l:deletedVirtLen = virtcol('$')
     let l:deletedTextLen = len(@")
-    execute 'normal! ' . a:selectReplacementCmd . 'P'
+    execute 'normal! ' . a:selectReplacementCmd . 'p'
     let l:replacedTextLen = len(@")
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'

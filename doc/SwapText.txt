@@ -116,6 +116,8 @@ https://github.com/inkarkat/vim-SwapText/issues or email (address below).
 HISTORY							    *SwapText-history*
 
 1.03	RELEASEME
+- Adapt: Plugin broken since Vim 8.2.4242 (put in Visual mode cannot be
+  repeated); need to use v_p instead of v_P command now.
   *** You need to update to ingo-library (vimscript #4433) version 1.042! ***
 
 1.02	19-Sep-2016
