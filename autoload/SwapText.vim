@@ -52,7 +52,7 @@ function! s:SwapText( selectReplacementCmd )
     else
 	let l:deletedCol = col("'.")
 	let l:deletedVirtCol = virtcol("'.")
-	let l:deletedVirtLen = virtcol('$')
+	let l:deletedVirtLen = (line('.') == line("'.") ? virtcol('$') : ingo#compat#strdisplaywidth(getline("'.")) + 1)
 	let l:deletedLine = line("'.")
 	let l:deletedLineCnt = s:LineCnt(@")
 
