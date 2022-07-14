@@ -8,8 +8,16 @@
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 
+" Since Vim 8.2.0324, the last change position can be one beyond the last
+" [screen] column (col('$') == col("'.")); previously its value was reset to
+" point at the character before the deletion if that happened at the end of the
+" line (col('$') == col("'.") + 1). The patch isn't about that, so it's not
+" clear whether that change was intentional; as 2.5 years have passed already,
+" let's take it at face value and implement a workaround here.
+let s:atEndColOffset = (v:version < 802 || v:version == 802 && ! has('patch324') ? 1 : 0)
+
 function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol, deletedVirtLen )
-    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + 1 == a:deletedVirtLen)
+    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + s:atEndColOffset == a:deletedVirtLen)
     if ! l:isAtEndOfDeletedLine
 	return 0
     endif
@@ -18,7 +26,7 @@ function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol, deletedVirtLen )
     " cannot use them any more to determine whether the previous deletion
     " was before or after the cursor position. Therefore we save that
     " position at the start of the mapping.
-    let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] > a:deletedCol)
+    let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] >= (a:deletedCol + s:atEndColOffset))
 "****D echomsg '****' string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
     return l:wasDeletionAtEndOfLine
 endfunction
