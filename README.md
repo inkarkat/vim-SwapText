@@ -103,7 +103,7 @@ https://github.com/inkarkat/vim-SwapText/issues or email (address below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.03    RELEASEME
+##### 1.03    13-Nov-2024
 - Adapt: Plugin broken since Vim 8.2.4242 (put in Visual mode cannot be
   repeated); need to use v\_p instead of v\_P command now.
 - Adapt: Detection of deletion at the end of the line broken since Vim
@@ -134,7 +134,7 @@ arbitrary text by Piet Delport and an enhancement by
 ad\_scriven@postmaster.co.uk.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2007-2022 Ingo Karkat -
+Copyright: (C) 2007-2024 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;
