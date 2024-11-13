@@ -3,89 +3,21 @@
 " DEPENDENCIES:
 "   - ingo-library.vim plugin
 "
-" Copyright: (C) 2007-2020 Ingo Karkat
+" Copyright: (C) 2007-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.03.022	02-Jul-2020	Refactoring: Use
-"				ingo#mapmaker#OpfuncExpression().
-"   1.02.021	18-Sep-2016	BUG: When deleting at the end of a line, and
-"				swapping with a longer text before it, the swap
-"				location is off by one. The EOL position isn't
-"				properly detected, because the virtual line
-"				length after the paste is used in the condition.
-"				Save the deleted virtual line length in
-"				deletedVirtLen, and pass that on to
-"				s:WasDeletionAtEndOfLine(). Thanks to Marcelo
-"				Montu for the bug report.
-"   1.02.020	04-Feb-2015	"E790: undojoin is not allowed after undo" may
-"				also be raised in SwapText#Operator(); ignore
-"				it.
-"   1.00.019	24-Jun-2014	Prepare for publishing.
-"	018	05-May-2014	Abort on error.
-"	017	21-Mar-2013	Avoid changing the jumplist.
-"	016	19-Mar-2013	Handle deletion at the end of a line by checking
-"				for the delete cursor position being at the end
-"				of the line and (via the stored
-"				s:deletedStartPos, as the '[ mark gets
-"				clobbered) whether the deletion actually started
-"				after it.
-"   	015	28-Aug-2012	For the operators, handle readonly and
-"				nomodifiable buffers by printing just the
-"				warning / error, without the multi-line function
-"				error. (Unlikely as it may be, as the user must
-"				have done a delete first, anyway.)
-"	014	17-Nov-2011	ENH: Handle :undojoin failure when user did undo
-"				between delete and swap. To avoid a potential
-"				swap with wrong register contents, error in this
-"				case.
-"				FIX: Require Vim 7, necessary for :undojoin.
-"				Rename to SwapText.vim.
-"				Split off autoload script and documentation.
-"	013	30-Sep-2011	Use <silent> for <Plug> mapping instead of
-"				default mapping.
-"	012	22-Jun-2011	BUG: Must adapt the deleted line location if
-"				it's below the overridden range; the override
-"				may have changed the number of lines.
-"	011	16-Jun-2011	Remove general "P" command from pasteCmd
-"				argument and rename it selectReplacementCmd.
-"				Remove outdated comment.
-"	010	12-Feb-2010	After further problems with the used marks, set
-"				jumps, etc., replaced all used marks with a
-"				variable, and was even able to simplify the code
-"				through it.
-"				ENH: The swap is now atomic, i.e. it can be
-"				undone in a single action.
-"	009	12-Feb-2010	BUG: Used mark ' instead of mark ", thereby
-"				horribly breaking everything. (It's astounding
-"				how long it took me to notice!)
-"	008	11-Sep-2009	BUG: Cannot set mark " in Vim 7.0 and 7.1; using
-"				mark z instead; abstracted mark via s:tempMark.
-"	007	04-Jul-2009	Also replacing temporary mark ` with mark " and
-"				using g` command for the visual mode swap.
-"	006	18-Jun-2009	Replaced temporary mark z with mark " and using
-"				g` command to avoid clobbering jumplist.
-"	005	21-Mar-2009	Added \xx mapping for linewise swap.
-"				Added \X mapping for swap until the end of line.
-"	004	07-Aug-2008	hasmapto() now checks for normal mode.
-"	003	30-Jun-2008	Removed unnecessary <script> from mappings.
-"	002	07-Jun-2007	Changed offset algorithm from calculating
-"				differences to set marks to differences in
-"				pasted text.
-"				BF: Saving position of deleted text and adding
-"				offset to that instead of jumping to mark and
-"				adding offset then (which doesn't work when the
-"				swap shortens the line and the mark now points
-"				to after the end of the line.
-"				Added Vim 7 custom operator.
-"				Refactored code so that both the visual mode
-"				mapping and the operator use the same functions.
-"	001	06-Jun-2007	file creation
+
+" Since Vim 8.2.0324, the last change position can be one beyond the last
+" [screen] column (col('$') == col("'.")); previously its value was reset to
+" point at the character before the deletion if that happened at the end of the
+" line (col('$') == col("'.") + 1). The patch isn't about that, so it's not
+" clear whether that change was intentional; as 2.5 years have passed already,
+" let's take it at face value and implement a workaround here.
+let s:atEndColOffset = (v:version < 802 || v:version == 802 && ! has('patch324') ? 1 : 0)
 
 function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol, deletedVirtLen )
-    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + 1 == a:deletedVirtLen)
+    let l:isAtEndOfDeletedLine = (a:deletedVirtCol + s:atEndColOffset == a:deletedVirtLen)
     if ! l:isAtEndOfDeletedLine
 	return 0
     endif
@@ -94,7 +26,7 @@ function! s:WasDeletionAtEndOfLine( deletedCol, deletedVirtCol, deletedVirtLen )
     " cannot use them any more to determine whether the previous deletion
     " was before or after the cursor position. Therefore we save that
     " position at the start of the mapping.
-    let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] > a:deletedCol)
+    let l:wasDeletionAtEndOfLine = (s:deletedStartPos[1] == line('.') && s:deletedStartPos[2] >= (a:deletedCol + s:atEndColOffset))
 "****D echomsg '****' string(getpos('.')) l:isAtEndOfDeletedLine string(s:deletedStartPos) l:wasDeletionAtEndOfLine
     return l:wasDeletionAtEndOfLine
 endfunction
@@ -111,7 +43,7 @@ function! s:SwapTextWithOffsetCorrection( selectReplacementCmd )
     let l:deletedVirtCol = virtcol("'.")
     let l:deletedVirtLen = virtcol('$')
     let l:deletedTextLen = len(@")
-    execute 'normal! ' . a:selectReplacementCmd . 'P'
+    execute 'normal! ' . a:selectReplacementCmd . 'p'
     let l:replacedTextLen = len(@")
     let l:offset = l:deletedTextLen - l:replacedTextLen
 "****D echomsg '**** corrected for ' . l:offset. ' characters.'
@@ -128,22 +60,22 @@ function! s:SwapText( selectReplacementCmd )
     else
 	let l:deletedCol = col("'.")
 	let l:deletedVirtCol = virtcol("'.")
-	let l:deletedVirtLen = virtcol('$')
+	let l:deletedVirtLen = (line('.') == line("'.") ? virtcol('$') : ingo#compat#strdisplaywidth(getline("'.")) + 1)
 	let l:deletedLine = line("'.")
 	let l:deletedLineCnt = s:LineCnt(@")
 
-	" Override with deleted contents.
-	execute 'normal!' a:selectReplacementCmd . 'P'
+	" Overwrite with deleted contents.
+	execute 'normal!' a:selectReplacementCmd . 'p'
 "****D echomsg '****' l:deletedCol l:deletedLine l:deletedLineCnt
-	" Must adapt the deleted line location if it's below the overridden
-	" range; the override may have changed the number of lines.
+	" Must adapt the deleted line location if it's below the overwritten
+	" range; the overwriting may have changed the number of lines.
 	let l:overwrittenLineCnt = s:LineCnt(@")
 	let l:offset = l:deletedLineCnt - l:overwrittenLineCnt
 	if l:deletedLine > line('.')
 	    let l:deletedLine += l:offset
 	endif
 "****D echomsg '****' l:overwrittenLineCnt l:offset
-	" Put overridden contents at the formerly deleted location.
+	" Put overwritten contents at the formerly deleted location.
 	call cursor(l:deletedLine, l:deletedCol)
 	call s:Replace(l:deletedCol, l:deletedVirtCol, l:deletedVirtLen)
     endif

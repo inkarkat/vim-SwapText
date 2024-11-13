@@ -2,33 +2,12 @@
 "
 " DEPENDENCIES:
 "   - Requires Vim 7.0 or higher.
-"   - SwapText.vim autoload script
-"   - ingo/err.vim autoload script
+"   - ingo-library.vim plugin
 "
-" Copyright: (C) 2007-2014 Ingo Karkat
+" Copyright: (C) 2007-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-" Source: Based on vimtip #470: Map to quickly swap/exchange arbitrary text by
-"	  Piet Delport and an enhancement by ad_scriven@postmaster.co.uk.
-"
-" REVISION	DATE		REMARKS
-"   1.01.019	22-Jul-2014	BUG: <Leader>X includes the newline unless :set
-"				selection=exclusive. Thanks to Enno Nagel for
-"				reporting this.
-"				Minor: Supply the count to "$", no need for a
-"				separate "count times j".
-"   1.00.018	05-May-2014	Abort on error.
-"	017	19-Mar-2013	Revert: Last change broke swapping. Replace
-"				<Bar> with <CR>; because SwapText#Visual() uses
-"				gv, the selection must have been established.
-"	016	18-Feb-2013	Reformat and replace <CR>: with <Bar>.
-"				Change <Plug>-mapping names.
-"	015	26-Nov-2011	BUG: Incorrectly placed if..endif broke
-"				<Plug>SwapTextLines.
-"	014	17-Nov-2011	Split off separate autoload script and
-"				documentation.
-"	001	06-Jun-2007	file creation
 
 " Avoid installing twice or when in unsupported Vim version.
 if exists('g:loaded_SwapText') || (v:version < 700)
